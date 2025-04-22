@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AI-APIExample</string>
+    <string name="button_1">Set 1</string>
+    <string name="button_2">Set 2</string>
+    <string name="button_3">GetAll</string>
+    <string name="button_4">Delete</string>
+</resources>
