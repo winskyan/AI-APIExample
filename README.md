@@ -316,7 +316,8 @@ if (allFsaContent != null) {
 /**
  * Deletes the command word FSA content associated with the given key and language type.
  *
- * @param key          The key of the command word FSA content to delete. Must not be null.
+ * @param key          The key of the command word FSA content to delete. Must not be null but can be empty.
+ *                     If empty, all command word FSA content for the given language type will be deleted.
  * @param languageType The language type. Must be one of {@link AiConstants#LANGUAGE_TYPE_CHINESE}
  *                     or {@link AiConstants#LANGUAGE_TYPE_ENGLISH}.
  * @return An integer result code from the service.
