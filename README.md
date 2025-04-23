@@ -1,6 +1,6 @@
-# AIKit 语音识别 API 使用指南
+# AI 服务 API 使用指南
 
-本文档介绍如何使用 AIKit 提供的系统级语音识别 API (`AiManager`)。
+本文档介绍如何使用 AI 提供的系统级AI服务 API (`AiManager`)。
 
 ## 获取 SDK (ai-api.jar)
 
@@ -43,22 +43,31 @@ if (aiManager == null) {
 }
 ```
 
-### 2. 监听识别结果
+### 2. 监听结果
 
-要接收语音识别结果，需要实现 `AiCallback` 接口，并将其注册到 `AiManager`。
+要接收AI服务结果，需要实现 `AiCallback` 接口，并将其注册到 `AiManager`。
 
 #### 2.1 实现 AiCallback
 
-接口定义如下：
+接口定义如下 (`onCommandWordRecognized` 已提供默认实现，可选择性覆盖)：
 
 ```java
+package android.ai.kit;
+
+import androidx.annotation.NonNull;
+import java.util.concurrent.Executor;
+
+/**
+ * Callback interface for AI service results.
+ */
 public interface AiCallback {
+
     /**
-     *Called when a command word is recognized.
+     * Called when a command word is recognized.
      *
      * @param commandWord The recognized command word.
      */
-    void onCommandWordRecognized(@NonNull String commandWord);
+     default void onCommandWordRecognized(@NonNull String commandWord){}
 }
 ```
 
@@ -140,7 +149,7 @@ class MyActivity : AppCompatActivity(), AiCallback {
 }
 ```
 
-### 3. 管理命令词 (FSA 格式)
+### 3. 离线命令词识别
 
 API 使用 FSA (Finite State Automaton) 格式来定义可识别的命令词语法。
 
@@ -308,7 +317,8 @@ if (allFsaContent != null) {
 
 #### 3.3 删除指定场景的命令词
 
-使用 `deleteCommandWordFsaContent` 可以删除指定场景（由 `key` 标识）和语言的命令词语法。
+使用 `deleteCommandWordFsaContent` 可以删除指定 `key` 和 `languageType` 的命令词语法。
+**如果 `key` 为空字符串 `""`，则会删除指定 `languageType` 下的所有命令词语法。**
 
 方法定义如下：
 
@@ -329,16 +339,12 @@ public int deleteCommandWordFsaContent(@NonNull String key, @AiConstants.Languag
 ```
 
 ```kotlin
-val keyToDelete = "key" // 要删除的场景 Key
-// 注意：根据方法定义，返回值是 int，表示操作结果码，而非 Boolean
-val deleteResultCode: Int? =
-    aiManager?.deleteCommandWordFsaContent(keyToDelete, AiConstants.LANGUAGE_TYPE_CHINESE)
-
-// 假设 0 代表成功，具体需参考 API 定义
+val keyToDelete = "" // 删除中文下的所有命令词
+val deleteResultCode: Int? = aiManager?.deleteCommandWordFsaContent(keyToDelete, AiConstants.LANGUAGE_TYPE_CHINESE)
 if (deleteResultCode == 0) {
-    Log.d(TAG, "场景 Key '$keyToDelete' 的命令词删除成功")
+    Log.d(TAG, "删除所有中文命令词成功")
 } else {
-    Log.e(TAG, "场景 Key '$keyToDelete' 的命令词删除失败，错误码: $deleteResultCode")
+    Log.e(TAG, "删除所有中文命令词失败，错误码: $deleteResultCode")
 }
 ```
 
