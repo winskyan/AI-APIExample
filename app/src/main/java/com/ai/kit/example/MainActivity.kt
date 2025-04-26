@@ -43,36 +43,18 @@ class MainActivity : AppCompatActivity(), AiCallback {
         binding.tvVersion.text = version
 
         binding.btn1.setOnClickListener {
-            val commandWordFsaContent = "#FSA 1.0;\n" +
-                    "0\t1\t<a>\n" +
-                    "0\t1\t-\n" +
-                    "1\t2\t<b>\n" +
-                    "2\t3\t<c>\n" +
-                    ";\n" +
-                    "<a>:今天;\n" +
-                    "<b>:你好;\n" +
-                    "<c>:了吗|不好;"
+            val commandWordFsaContent =
+                "#FSA 1.0;\n" + "0\t1\t<a>\n" + "0\t1\t-\n" + "1\t2\t<b>\n" + "2\t3\t<c>\n" + ";\n" + "<a>:今天;\n" + "<b>:你好;\n" + "<c>:了吗|不好;"
             val setResult = aiManager?.setCommandWords(
-                "rain",
-                commandWordFsaContent,
-                AiConstants.LANGUAGE_TYPE_CHINESE
+                "rain", commandWordFsaContent, AiConstants.LANGUAGE_TYPE_CHINESE
             )
         }
 
         binding.btn2.setOnClickListener {
-            val commandWordFsaContent = "#FSA 1.0;\n" +
-                    "0\t1\t<a>\n" +
-                    "0\t1\t-\n" +
-                    "1\t2\t<b>\n" +
-                    "2\t3\t<c>\n" +
-                    ";\n" +
-                    "<a>:今天;\n" +
-                    "<b>:下雨;\n" +
-                    "<c>:了吗|下没;"
+            val commandWordFsaContent =
+                "#FSA 1.0;\n" + "0\t1\t<a>\n" + "0\t1\t-\n" + "1\t2\t<b>\n" + "2\t3\t<c>\n" + ";\n" + "<a>:今天;\n" + "<b>:下雨;\n" + "<c>:了吗|下没;"
             val setResult = aiManager?.setCommandWords(
-                "rain2",
-                commandWordFsaContent,
-                AiConstants.LANGUAGE_TYPE_CHINESE
+                "rain2", commandWordFsaContent, AiConstants.LANGUAGE_TYPE_CHINESE
             )
         }
 
@@ -103,6 +85,7 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
     override fun onCommandWordRecognized(commandWord: String) {
         Log.d(TAG, "onCommandWordRecognized: $commandWord")
+        runOnUiThread { binding.tvResult.text = commandWord }
     }
 
 }
