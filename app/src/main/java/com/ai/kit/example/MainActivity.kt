@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity(), AiCallback {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        checkBootStart()
+
         initView()
 
         initService()
@@ -72,6 +74,14 @@ class MainActivity : AppCompatActivity(), AiCallback {
         }
     }
 
+    private fun checkBootStart() {
+        val isBootStart = intent?.getBooleanExtra("boot_start", false) ?: false
+        if (isBootStart) {
+            Log.i(TAG, "main is started by boot self start")
+        } else {
+            Log.i(TAG, "main is started by user click")
+        }
+    }
 
     private fun exit() {
         finishAffinity()
