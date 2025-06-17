@@ -49,7 +49,7 @@ if (aiManager == null) {
 
 #### 2.1 实现 AiCallback
 
-接口定义如下 (`onCommandWordRecognized` 已提供默认实现，可选择性覆盖)：
+接口定义如下（所有方法都已提供默认实现，可选择性覆盖）：
 
 ```java
 package android.ai.kit;
@@ -67,7 +67,15 @@ public interface AiCallback {
      *
      * @param commandWord The recognized command word.
      */
-     default void onCommandWordRecognized(@NonNull String commandWord){}
+    default void onCommandWordRecognized(@NonNull String commandWord) {}
+
+    /**
+     * Called when an error occurs in the AI service.
+     *
+     * @param errorCode The error code indicating the type of error.
+     * @param errorMessage A descriptive message about the error.
+     */
+    default void onError(int errorCode, @NonNull String errorMessage) {}
 }
 ```
 
@@ -89,6 +97,37 @@ class MyActivity : AppCompatActivity(), AiCallback {
         // 当识别到命令词时，此方法会被调用
         Log.d(TAG, "识别到的命令词: $commandWord")
         // 在这里处理识别到的命令词，例如更新 UI 或执行操作
+    }
+
+    override fun onError(errorCode: Int, errorMessage: String) {
+        // 当AI服务发生错误时，此方法会被调用
+        Log.e(TAG, "AI服务错误 - 错误码: $errorCode, 错误信息: $errorMessage")
+        
+        // 根据错误码处理不同类型的错误
+        when (errorCode) {
+            AiConstants.ERROR_CODE_SERVICE_NOT_CONNECTED -> {
+                // 处理服务连接错误
+                Log.e(TAG, "服务连接失败，请检查AI服务是否正常运行")
+            }
+            AiConstants.ERROR_CODE_INVALID_PARAMETER,
+            AiConstants.ERROR_CODE_INVALID_DATA -> {
+                // 处理参数或数据错误
+                Log.e(TAG, "参数或数据格式错误，请检查输入")
+            }
+            AiConstants.ERROR_CODE_PERMISSION_DENIED -> {
+                // 处理权限错误
+                Log.e(TAG, "权限不足，无法访问AI服务")
+            }
+            else -> {
+                // 处理其他未知错误
+                Log.e(TAG, "未知错误类型")
+            }
+        }
+        
+        // 可以在这里显示错误信息给用户
+        runOnUiThread {
+            Toast.makeText(this, "AI服务错误: $errorMessage", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // ... 其他 Activity 代码 ...
@@ -136,16 +175,146 @@ class MyActivity : AppCompatActivity(), AiCallback {
         // ... 获取 aiManager 实例 ...
 
         // 在 Activity 创建或恢复时注册
-        aiManager?.addListener(this) // this 指向实现了 AiCallback 的类实例
+        val addResult = aiManager?.addListener(this) // this 指向实现了 AiCallback 的类实例
+        if (addResult != 0) {
+            Log.e(TAG, "注册监听器失败，错误码: $addResult")
+        }
     }
 
     override fun onDestroy() {
         // 在 Activity 销毁时取消注册
-        aiManager?.removeListener(this)
+        val removeResult = aiManager?.removeListener(this)
+        if (removeResult != 0) {
+            Log.e(TAG, "取消注册监听器失败，错误码: $removeResult")
+        }
         super.onDestroy()
     }
 
     // ... 实现 AiCallback 和其他 Activity 代码 ...
+}
+```
+
+#### 2.3 错误码说明
+
+错误码定义在 `AiConstants` 类中，主要分为以下几个类别：
+
+##### 基础错误码（返回值类型）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 0 | `ERROR_CODE_OK` | 操作成功 | 正常处理 |
+| -1 | `ERROR_CODE_GENERAL` | 一般错误 | 查看详细错误信息 |
+| -2 | `ERROR_CODE_NOT_INITIALIZED` | 服务未初始化 | 重新初始化服务 |
+| -3 | `ERROR_CODE_INVALID_PARAMETER` | 参数无效 | 检查传入参数 |
+| -4 | `ERROR_CODE_INVALID_DATA` | 数据无效 | 检查数据格式 |
+| -5 | `ERROR_CODE_INVALID_STATE` | 状态无效 | 检查服务状态 |
+| -6 | `ERROR_CODE_SERVICE_NOT_CONNECTED` | 服务未连接 | 重新连接服务 |
+| -7 | `ERROR_CODE_REMOTE_EXCEPTION` | 远程调用异常 | 重试操作 |
+| -8 | `ERROR_CODE_ALREADY_REGISTERED` | 已经注册 | 避免重复注册 |
+| -9 | `ERROR_CODE_PERMISSION_DENIED` | 权限拒绝 | 检查应用权限 |
+
+##### AI Kit 授权相关错误码（18000-18099）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18001-18004 | `ERROR_CODE_AIKIT_AUTHORIZATION_ISSUE_*` | 授权问题 | 检查授权配置 |
+| 18005 | `ERROR_CODE_AIKIT_AUTHORIZATION_EXPIRED` | 授权过期 | 更新授权 |
+| 18006 | `ERROR_CODE_AIKIT_DEVICE_TIME_SLOW` | 设备时间慢 | 校正设备时间 |
+| 18007 | `ERROR_CODE_AIKIT_API_KEY_MISMATCH` | API密钥不匹配 | 检查API密钥 |
+| 18008 | `ERROR_CODE_AIKIT_ACTIVATION_EXPIRED` | 激活过期 | 重新激活 |
+
+##### AI Kit 资源相关错误码（18100-18199）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18100-18102 | `ERROR_CODE_AIKIT_RESOURCE_ERROR_*` | 资源错误 | 检查资源文件 |
+| 18103 | `ERROR_CODE_AIKIT_RESOURCE_PARAMETER_NOT_EXIST` | 资源参数不存在 | 检查参数配置 |
+| 18104 | `ERROR_CODE_AIKIT_RESOURCE_PATH_OPEN_FAILED` | 资源路径打开失败 | 检查文件路径 |
+| 18105 | `ERROR_CODE_AIKIT_RESOURCE_LOAD_FAILED` | 资源加载失败 | 重试加载 |
+
+##### AI Kit 引擎相关错误码（18200-18299）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18200 | `ERROR_CODE_AIKIT_ENGINE_AUTH_FAILED` | 引擎认证失败 | 检查引擎授权 |
+| 18201 | `ERROR_CODE_AIKIT_ENGINE_LOADING_FAILED` | 引擎加载失败 | 重试或重启应用 |
+| 18202 | `ERROR_CODE_AIKIT_ENGINE_NOT_INITIALIZED` | 引擎未初始化 | 初始化引擎 |
+
+##### AI Kit SDK 相关错误码（18300-18399）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18300 | `ERROR_CODE_AIKIT_SDK_UNAVAILABLE` | SDK不可用 | 检查SDK状态 |
+| 18301 | `ERROR_CODE_AIKIT_SDK_NOT_INITIALIZED` | SDK未初始化 | 初始化SDK |
+| 18302 | `ERROR_CODE_AIKIT_SDK_INIT_FAILED` | SDK初始化失败 | 重试初始化 |
+| 18308 | `ERROR_CODE_AIKIT_TIMEOUT_ERROR` | 超时错误 | 重试操作 |
+
+##### AI Kit 参数相关错误码（18500-18599）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18500 | `ERROR_CODE_AIKIT_PARAMETER_KEY_NOT_FOUND` | 参数键未找到 | 检查参数名称 |
+| 18503-18506 | `ERROR_CODE_AIKIT_*_EMPTY` | 各种参数为空 | 提供必需参数 |
+| 18509 | `ERROR_CODE_AIKIT_REQUIRED_PARAMETER_MISSING` | 必需参数缺失 | 补充缺失参数 |
+
+##### AI Kit 网络和云服务错误码（18700-18799）
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18701 | `ERROR_CODE_AIKIT_NETWORK_NOT_CONNECTED` | 网络未连接 | 检查网络连接 |
+| 18704 | `ERROR_CODE_AIKIT_APPLICATION_NOT_REGISTERED` | 应用未注册 | 注册应用 |
+| 18707 | `ERROR_CODE_AIKIT_CLOUD_AUTHORIZATION_EXPIRED` | 云端授权过期 | 更新云端授权 |
+
+##### AI Kit 特殊错误码
+
+| 错误码 | 常量名 | 含义 | 处理建议 |
+|--------|--------|------|----------|
+| 18900 | `ERROR_CODE_AIKIT_NO_FSA_FILES_FOUND` | 未找到FSA文件 | 检查FSA文件配置 |
+
+##### 使用常量的示例代码
+
+```kotlin
+import android.ai.kit.AiConstants
+
+override fun onError(errorCode: Int, errorMessage: String) {
+    Log.e(TAG, "AI服务错误 - 错误码: $errorCode, 错误信息: $errorMessage")
+    
+    when (errorCode) {
+        AiConstants.ERROR_CODE_OK -> {
+            // 成功，不应该进入onError
+            Log.d(TAG, "操作成功")
+        }
+        AiConstants.ERROR_CODE_SERVICE_NOT_CONNECTED -> {
+            Log.e(TAG, "服务连接失败，请检查AI服务是否正常运行")
+            // 尝试重新连接服务
+        }
+        AiConstants.ERROR_CODE_INVALID_PARAMETER -> {
+            Log.e(TAG, "参数无效，请检查传入参数")
+        }
+        AiConstants.ERROR_CODE_PERMISSION_DENIED -> {
+            Log.e(TAG, "权限不足，无法访问AI服务")
+        }
+        AiConstants.ERROR_CODE_AIKIT_AUTHORIZATION_EXPIRED -> {
+            Log.e(TAG, "授权已过期，请更新授权")
+        }
+        AiConstants.ERROR_CODE_AIKIT_ENGINE_NOT_INITIALIZED -> {
+            Log.e(TAG, "AI引擎未初始化")
+        }
+        AiConstants.ERROR_CODE_AIKIT_NO_FSA_FILES_FOUND -> {
+            Log.e(TAG, "未找到FSA文件，请检查命令词配置")
+        }
+        in 18000..18999 -> {
+            Log.e(TAG, "AI Kit 特定错误: $errorMessage")
+        }
+        else -> {
+            Log.e(TAG, "未知错误类型: $errorCode")
+        }
+    }
+    
+    // 在UI上显示错误信息
+    runOnUiThread { 
+        binding.tvResult.text = "错误: $errorMessage (错误码: $errorCode)"
+    }
 }
 ```
 
@@ -367,5 +536,15 @@ API 使用 `AiConstants` 类来定义常量。
 
 * 获取 `AiManager` 实例。
 * 实现 `AiCallback` 接口并处理识别结果。
+* 实现 `onError` 方法并处理各种错误情况。
 * 在 Activity 生命周期中注册和取消注册监听器。
 * 使用按钮触发设置、获取和删除命令词的操作。
+* 检测开机自启动状态并在UI上显示相关信息。
+
+### 主要功能特性
+
+1. **命令词识别**: 实时识别用户设定的命令词并在界面显示
+2. **错误处理**: 完整的错误处理机制，包括错误码分类和用户友好的错误信息显示
+3. **开机自启动**: 支持系统开机后自动启动应用
+4. **生命周期管理**: 正确的监听器注册和取消注册，避免内存泄漏
+5. **多场景支持**: 支持设置多个不同的命令词场景（通过不同的key区分）

@@ -98,4 +98,13 @@ class MainActivity : AppCompatActivity(), AiCallback {
         runOnUiThread { binding.tvResult.text = commandWord }
     }
 
+    override fun onError(errorCode: Int, errorMessage: String) {
+        super.onError(errorCode, errorMessage)
+        Log.e(TAG, "onError: $errorCode, $errorMessage")
+        runOnUiThread {
+            val errorStr = "Error: $errorCode, $errorMessage"
+            binding.tvResult.text = errorStr
+        }
+    }
+
 }
