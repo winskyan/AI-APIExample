@@ -3,6 +3,7 @@ package com.ai.kit.example
 import android.ai.kit.AiCallback
 import android.ai.kit.AiConstants
 import android.ai.kit.AiManager
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +44,11 @@ class MainActivity : AppCompatActivity(), AiCallback {
     private fun initView() {
         val version = "Version: ${BuildConfig.VERSION_NAME}"
         binding.tvVersion.text = version
+
+        binding.btnScanWifiQr.setOnClickListener {
+            val intent = Intent("com.ai.kit.tools.action.SCAN_QR")
+            startActivity(intent)
+        }
 
         binding.btn1.setOnClickListener {
             val commandWordFsaContent =
