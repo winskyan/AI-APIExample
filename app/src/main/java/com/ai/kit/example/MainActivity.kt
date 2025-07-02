@@ -8,6 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.ai.kit.example.databinding.ActivityMainBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity(), AiCallback {
@@ -55,7 +58,7 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
         binding.btn1.setOnClickListener {
             val commandWordFsaContent =
-                "#FSA 1.0;\n" + "0\t1\t<a>\n" + "0\t1\t-\n" + "1\t2\t<b>\n" + "2\t3\t<c>\n" + ";\n" + "<a>:今天;\n" + "<b>:你好;\n" + "<c>:了吗|不好;"
+                "#FSA 1.0;\n" + "0\t1\t<open>\n" + "1\t2\t<di>\n" + "2\t3\t<number>\n" + "3\t4\t<close>\n" + ";\n" + "<open>:打开;\n" + "<di>:第;\n" + "<number>:一|二|三|四|五|六|七|八|九|十|十一|十二|十三|十四|十五|十六;\n" + "<close>:个;"
             val setResult = aiManager?.setCommandWords(
                 "rain", commandWordFsaContent, AiConstants.LANGUAGE_TYPE_CHINESE
             )
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
         binding.btn2.setOnClickListener {
             val commandWordFsaContent =
-                "#FSA 1.0;\n" + "0\t1\t<a>\n" + "0\t1\t-\n" + "1\t2\t<b>\n" + "2\t3\t<c>\n" + ";\n" + "<a>:今天;\n" + "<b>:下雨;\n" + "<c>:了吗|下没;"
+                "#FSA 1.0;\n" + "0\t1\t<start>\n" + "1\t2\t<play>\n" + ";\n" + "<start>:开始|停止;\n" + "<play>:播放;"
             val setResult = aiManager?.setCommandWords(
                 "rain2", commandWordFsaContent, AiConstants.LANGUAGE_TYPE_CHINESE
             )
@@ -104,7 +107,8 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
     override fun onCommandWordRecognized(commandWord: String) {
         Log.d(TAG, "onCommandWordRecognized: $commandWord")
-        runOnUiThread { appendResultText("识别到命令词: $commandWord") }
+        val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(Date())
+        runOnUiThread { appendResultText("[$timestamp] 识别到命令词: $commandWord") }
     }
 
     override fun onError(errorCode: Int, errorMessage: String) {
