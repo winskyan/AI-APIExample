@@ -45,10 +45,13 @@ class MainActivity : AppCompatActivity(), AiCallback {
         val version = "Version: ${BuildConfig.VERSION_NAME}"
         binding.tvVersion.text = version
 
+        appendResultText("AI Kit Service 已启动，等待命令词识别结果...")
+
         binding.btnScanWifiQr.setOnClickListener {
             val intent = Intent("com.ai.kit.tools.action.SCAN_QR")
             startActivity(intent)
         }
+
 
         binding.btn1.setOnClickListener {
             val commandWordFsaContent =
@@ -101,7 +104,7 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
     override fun onCommandWordRecognized(commandWord: String) {
         Log.d(TAG, "onCommandWordRecognized: $commandWord")
-        runOnUiThread { binding.tvResult.text = commandWord }
+        runOnUiThread { appendResultText("识别到命令词: $commandWord") }
     }
 
     override fun onError(errorCode: Int, errorMessage: String) {
@@ -111,6 +114,36 @@ class MainActivity : AppCompatActivity(), AiCallback {
             val errorStr = "Error: $errorCode, $errorMessage"
             binding.tvResult.text = errorStr
         }
+    }
+
+    /**
+     * Scroll to the bottom to display the latest content
+     */
+    private fun scrollToBottom() {
+        binding.scrollViewResult.post {
+            binding.scrollViewResult.fullScroll(android.view.View.FOCUS_DOWN)
+        }
+    }
+
+    /**
+     * Add new result text and automatically scroll to the bottom
+     */
+    private fun appendResultText(text: String) {
+        val currentText = binding.tvResult.text.toString()
+        val newText = if (currentText.isEmpty()) {
+            text
+        } else {
+            "$currentText\n$text"
+        }
+        binding.tvResult.text = newText
+        scrollToBottom()
+    }
+
+    /**
+     * Clear result text
+     */
+    private fun clearResultText() {
+        binding.tvResult.text = ""
     }
 
 }

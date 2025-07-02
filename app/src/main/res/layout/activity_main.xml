@@ -73,24 +73,40 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 
-    <TextView
-        android:id="@+id/tv_result"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ScrollView
+        android:id="@+id/scroll_view_result"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/border_dialog"
+        android:padding="8dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_error"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_1" />
+        app:layout_constraintTop_toBottomOf="@id/btn_1">
+
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+    </ScrollView>
 
 
     <TextView
         android:id="@+id/tv_error"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_version"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_result" />
+        app:layout_constraintTop_toBottomOf="@id/scroll_view_result" />
 
 
     <TextView
