@@ -72,6 +72,16 @@
         app:layout_constraintStart_toEndOf="@id/btn_3"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <Button
+        android:id="@+id/btn_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/button_5"
+        app:layout_constraintStart_toEndOf="@id/btn_4"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
 
     <ScrollView
         android:id="@+id/scroll_view_result"

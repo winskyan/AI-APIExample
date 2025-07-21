@@ -84,6 +84,11 @@ class MainActivity : AppCompatActivity(), AiCallback {
                 aiManager?.deleteCommandWordFsaContent("rain", AiConstants.LANGUAGE_TYPE_CHINESE)
             Log.d(TAG, "deleteCommandWordFsaContent: $ret")
         }
+
+        binding.btn5.setOnClickListener {
+            val ret = aiManager?.silentInstall("/sdcard/Download/AI-APIExample.apk", true)
+            Log.d(TAG, "silentInstall: $ret")
+        }
     }
 
     private fun checkBootStart() {
@@ -107,7 +112,8 @@ class MainActivity : AppCompatActivity(), AiCallback {
 
     override fun onCommandWordRecognized(commandWord: String) {
         Log.d(TAG, "onCommandWordRecognized: $commandWord")
-        val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(Date())
+        val timestamp =
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(Date())
         runOnUiThread { appendResultText("[$timestamp] 识别到命令词: $commandWord") }
     }
 
