@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.ai.kit.example.databinding.ActivityMainBinding
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -15,7 +16,7 @@ import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity(), AiCallback {
     companion object {
-        const val TAG: String = "MainActivity"
+        const val TAG: String = "AIKit-MainActivity"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -86,7 +87,12 @@ class MainActivity : AppCompatActivity(), AiCallback {
         }
 
         binding.btn5.setOnClickListener {
-            val ret = aiManager?.silentInstall("/sdcard/Download/AI-APIExample.apk", true)
+            val externalStorageDirectory =
+                File(android.os.Environment.getExternalStorageDirectory().absolutePath)
+            val ret = aiManager?.silentInstall(
+                "/sdcard/Download/AI-APIExample.apk",
+                true
+            )
             Log.d(TAG, "silentInstall: $ret")
         }
     }
