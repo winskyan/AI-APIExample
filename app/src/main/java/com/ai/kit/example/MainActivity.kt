@@ -124,7 +124,6 @@ class MainActivity : AppCompatActivity(), AiCallback {
     }
 
     override fun onError(errorCode: Int, errorMessage: String) {
-        super.onError(errorCode, errorMessage)
         Log.e(TAG, "onError: $errorCode, $errorMessage")
         runOnUiThread {
             val errorStr = "Error: $errorCode, $errorMessage"
